@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HR Interview Panel — Live Comments</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--navy:#0D2B45;--navy2:#1A3D5C;--gold:#C9A84C;--cream:#F8F6F2;--white:#FFFFFF;--border:#E2EAF0;}
+body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--navy);min-height:100vh}
+
+.header{background:var(--navy);padding:18px 32px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.header h1{font-family:'DM Serif Display',serif;font-size:21px;color:#fff;font-weight:400}
+.header p{font-size:11px;color:rgba(255,255,255,0.4);margin-top:3px;letter-spacing:1px;text-transform:uppercase}
+.hright{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.ppill{display:flex;align-items:center;gap:6px;padding:5px 11px;border-radius:20px;border:1px solid rgba(201,168,76,0.3);background:rgba(201,168,76,0.08)}
+.pav{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700}
+.pname{font-size:11px;color:rgba(255,255,255,0.85)}
+
+.sync-bar{background:#1A3D5C;padding:9px 32px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.sync-bar span{font-size:11px;color:rgba(255,255,255,0.5)}
+.gs-ok{background:#EAF3DE;color:#27500A;font-size:10px;padding:3px 10px;border-radius:7px;margin-left:auto;white-space:nowrap}
+.gs-err{background:#FCEBEB;color:#A32D2D;font-size:10px;padding:3px 10px;border-radius:7px;margin-left:auto;white-space:nowrap}
+.gs-syncing{background:#E6F1FB;color:#0C447C;font-size:10px;padding:3px 10px;border-radius:7px;margin-left:auto;white-space:nowrap}
+
+.main{max-width:1100px;margin:0 auto;padding:28px 20px}
+
+.sum4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px}
+.s4c{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:14px 16px;text-align:center}
+.s4n{font-family:'DM Serif Display',serif;font-size:28px}
+.s4l{font-size:11px;color:#7A9AB0;margin-top:4px}
+
+.cand-card{background:var(--white);border:1px solid var(--border);border-radius:12px;margin-bottom:10px;overflow:hidden;transition:box-shadow .2s}
+.cand-card:hover{box-shadow:0 2px 14px rgba(13,43,69,0.07)}
+.ch{display:flex;align-items:center;gap:10px;padding:13px 18px;cursor:pointer;user-select:none;transition:background .15s}
+.ch:hover{background:#F8FBFF}
+.av{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
+.cn{font-size:14px;font-weight:600;color:var(--navy)}
+.cr{font-size:11px;color:#7A9AB0;margin-top:2px}
+.sc2{font-size:10px;font-weight:600;padding:2px 9px;border-radius:8px;white-space:nowrap}
+.fp-chip{font-size:10px;font-weight:600;padding:2px 8px;border-radius:7px}
+.chev{width:14px;height:14px;transition:transform .2s;color:#B0C4D0;flex-shrink:0}
+.chev.open{transform:rotate(90deg)}
+.pb-bar{width:44px;height:3px;background:#EEF2F5;border-radius:2px;flex-shrink:0}
+.pb-fill{height:3px;border-radius:2px;background:#378ADD;transition:width .3s}
+
+.panel-body{display:none;border-top:1px solid var(--border);padding:16px 18px}
+.panel-body.open{display:block}
+.panel-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:14px}
+.ib{background:#F8FBFF;border:1px solid var(--border);border-radius:10px;padding:14px}
+.ih{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.ia{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700}
+.in2{font-size:12px;font-weight:600;color:var(--navy)}
+.it{font-size:10px;color:#7A9AB0}
+.star-row{display:flex;gap:3px;margin-bottom:9px}
+.star{width:14px;height:14px;cursor:pointer;color:#D8E2EA;transition:color .15s}
+.star.on{color:#BA7517}
+.star:hover{color:#E8C97A}
+.cb{width:100%;font-size:12px;padding:8px 10px;border-radius:8px;border:1px solid var(--border);background:var(--white);color:var(--navy);resize:vertical;min-height:80px;font-family:'DM Sans',sans-serif;line-height:1.5;transition:border-color .15s}
+.cb::placeholder{color:#B0C4D0}
+.cb:focus{outline:none;border-color:#378ADD}
+.vr{display:flex;gap:6px;margin-top:9px}
+.vb{flex:1;font-size:10px;font-weight:600;padding:6px 4px;border-radius:8px;border:1px solid var(--border);background:var(--white);color:#7A9AB0;cursor:pointer;text-align:center;transition:.15s}
+.vb:hover{background:#F0F4F8}
+.vb.ss{background:#EAF3DE;color:#27500A;border-color:#3B6D11}
+.vb.sh{background:#FAEEDA;color:#633806;border-color:#854F0B}
+.vb.sr{background:#FCEBEB;color:#A32D2D;border-color:#A32D2D}
+
+.pf{display:flex;align-items:center;gap:10px;padding:11px 14px;background:#F8FBFF;border-top:1px solid var(--border);border-radius:0 0 12px 12px;flex-wrap:wrap}
+.fl{font-size:11px;color:#7A9AB0;white-space:nowrap}
+.fv{font-size:13px;font-weight:600;color:var(--navy);min-width:36px}
+.fsel{font-size:11px;padding:5px 8px;border-radius:7px;border:1px solid var(--border);background:var(--white);color:var(--navy)}
+.rem-box{flex:1;font-size:11px;padding:5px 9px;border-radius:7px;border:1px solid var(--border);background:var(--white);color:var(--navy);font-family:'DM Sans',sans-serif;min-width:140px}
+.rem-box::placeholder{color:#B0C4D0}
+.rem-box:focus{outline:none;border-color:#378ADD}
+.save-btn{font-size:11px;font-weight:600;padding:6px 18px;border-radius:8px;border:none;background:var(--navy);color:#fff;cursor:pointer;display:flex;align-items:center;gap:6px;white-space:nowrap;transition:background .15s}
+.save-btn:hover{background:#1A3D5C}
+.save-btn.saving{opacity:.7;pointer-events:none}
+.spin{display:none;width:10px;height:10px;border:2px solid rgba(255,255,255,0.35);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite}
+.save-btn.saving .spin{display:block}
+.saved-ok{font-size:10px;color:#1D9E75;display:none;white-space:nowrap}
+.saved-err{font-size:10px;color:#A32D2D;display:none}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.footer{background:var(--navy);padding:16px 32px;text-align:center;margin-top:24px}
+.footer p{font-size:11px;color:rgba(255,255,255,0.3)}
+.footer strong{color:var(--gold)}
+
+@media(max-width:768px){
+  .sum4,.panel-grid{grid-template-columns:1fr 1fr}
+  .header{flex-direction:column;align-items:flex-start}
+  .pf{flex-direction:column;align-items:flex-start}
+  .rem-box{width:100%}
+}
+@media(max-width:480px){
+  .sum4,.panel-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <h1>HR Interview Panel — Live Comments</h1>
+    <p>Fill during interview &nbsp;·&nbsp; Auto-saves to Google Sheets</p>
+  </div>
+  <div class="hright">
+    <div class="ppill"><div class="pav" style="background:#E6F1FB;color:#0C447C">NK</div><span class="pname">Nitish Kumar</span></div>
+    <div class="ppill"><div class="pav" style="background:#E1F5EE;color:#085041">SU</div><span class="pname">Sumedha</span></div>
+    <div class="ppill"><div class="pav" style="background:#FBEAF0;color:#72243E">HK</div><span class="pname">Harpreet Kaur</span></div>
+  </div>
+</div>
+
+<div class="sync-bar">
+  <span>Click any candidate to expand &nbsp;·&nbsp; Fill ratings, comments &amp; verdict &nbsp;·&nbsp; Hit Save to sync to Google Sheets</span>
+  <span class="gs-ok" id="gsStatus">&#10003; Connected</span>
+</div>
+
+<div class="main">
+
+  <div class="sum4">
+    <div class="s4c"><div class="s4n">10</div><div class="s4l">Total Candidates</div></div>
+    <div class="s4c"><div class="s4n" id="sumS" style="color:#1D9E75">0</div><div class="s4l">Selected</div></div>
+    <div class="s4c"><div class="s4n" id="sumH" style="color:#BA7517">0</div><div class="s4l">On Hold</div></div>
+    <div class="s4c"><div class="s4n" id="sumR" style="color:#E24B4A">0</div><div class="s4l">Rejected</div></div>
+  </div>
+
+  <div id="panelList"></div>
+
+</div>
+
+<div class="footer">
+  <p><strong>HR Interview Panel</strong> &nbsp;·&nbsp; Nitish Kumar &nbsp;·&nbsp; Sumedha &nbsp;·&nbsp; Harpreet Kaur &nbsp;·&nbsp; Confidential — HR Use Only</p>
+</div>
+
+<script>
+const GS_URL = "https://script.google.com/macros/s/AKfycbxEmmim5L-EtYc5DxCCzMYu6emeoip06KK97bRktqaulMhfL74yBHBLSkTREYa9xU3o/exec";
+
+const candidates = [
+  {name:"Keshvi Priya Sinha",   init:"KP", color:"#E1F5EE", tc:"#085041", role:"PR / Media Executive",        score:43, band:"Excellent"},
+  {name:"Sharmistha Das",       init:"SD", color:"#E6F1FB", tc:"#0C447C", role:"Social Media Manager",         score:40, band:"Excellent"},
+  {name:"Niharika Katyura",     init:"NK", color:"#FAEEDA", tc:"#633806", role:"Video / Multimedia Production", score:39, band:"Excellent"},
+  {name:"Komal Solanki",        init:"KS", color:"#EEEDFE", tc:"#3C3489", role:"Content Writer / SEO",          score:38, band:"Excellent"},
+  {name:"Palak Sharma",         init:"PS", color:"#FBEAF0", tc:"#4B1528", role:"Brand / Social Media",          score:37, band:"Good"},
+  {name:"Aditya Banerjee",      init:"AB", color:"#FAECE7", tc:"#711B13", role:"Public Affairs / CSR",          score:36, band:"Good"},
+  {name:"Priyanshi Pandey",     init:"PP", color:"#EAF3DE", tc:"#27500A", role:"HR / Admin Executive",           score:31, band:"Good"},
+  {name:"Reeya Reetuparna Rout",init:"RR", color:"#F1EFE8", tc:"#2C2C2A", role:"PR / Communications Intern",   score:17, band:"Entry"},
+  {name:"Shivani Singh",        init:"SS", color:"#D3D1C7", tc:"#2C2C2A", role:"E-Commerce / Digital Admin",    score:13, band:"Entry"},
+  {name:"Anshu Kumari",         init:"AK", color:"#FAEEDA", tc:"#633806", role:"Admin / Data Entry Support",    score:10, band:"Entry"},
+];
+
+const panelMembers = [
+  {name:"Nitish Kumar",  init:"NK", title:"HR Manager",   c:"#E6F1FB", t:"#0C447C"},
+  {name:"Sumedha",       init:"SU", title:"Panel Member", c:"#E1F5EE", t:"#085041"},
+  {name:"Harpreet Kaur", init:"HK", title:"Panel Member", c:"#FBEAF0", t:"#72243E"},
+];
+
+const bandStyle = {
+  Excellent:{bg:"#EAF3DE",fg:"#27500A"},
+  Good:     {bg:"#FAEEDA",fg:"#633806"},
+  Entry:    {bg:"#FCEBEB",fg:"#A32D2D"},
+};
+
+const pstate = {};
+candidates.forEach((c,ci) => {
+  pstate[ci] = {open:false, ratings:[0,0,0], comments:["","",""], verdicts:[null,null,null], final:"", remarks:""};
+});
+
+function updateSummary(){
+  let s=0,h=0,r=0;
+  Object.values(pstate).forEach(st=>{
+    if(st.final==="Select")s++;
+    else if(st.final==="Hold")h++;
+    else if(st.final==="Reject")r++;
+  });
+  document.getElementById("sumS").textContent=s;
+  document.getElementById("sumH").textContent=h;
+  document.getElementById("sumR").textContent=r;
+}
+
+function starsHTML(ci,pi,val){
+  return [1,2,3,4,5].map(s=>
+    `<svg class="star${s<=val?" on":""}" onclick="setRating(${ci},${pi},${s})" viewBox="0 0 16 16" fill="currentColor" width="14" height="14">
+      <polygon points="8,1 10,6 15,6.5 11.5,10 12.5,15 8,12.5 3.5,15 4.5,10 1,6.5 6,6"/>
+    </svg>`).join("");
+}
+
+window.setRating = function(ci,pi,val){
+  pstate[ci].ratings[pi]=val;
+  document.getElementById(`st-${ci}-${pi}`).innerHTML=starsHTML(ci,pi,val);
+  recalcAvg(ci);
+};
+
+window.setVerdict = function(ci,pi,v){
+  pstate[ci].verdicts[pi]=v;
+  ["Select","Hold","Reject"].forEach((lbl,x)=>{
+    const b=document.getElementById(`vb-${ci}-${pi}-${x}`);
+    if(b) b.className="vb"+(v===lbl?" "+["ss","sh","sr"][x]:"");
+  });
+};
+
+window.setFinal = function(ci,v){
+  pstate[ci].final=v;
+  updateSummary();
+  const chip=document.getElementById(`fpc-${ci}`);
+  if(chip){
+    const bg=v==="Select"?"#EAF3DE":v==="Hold"?"#FAEEDA":v==="Reject"?"#FCEBEB":"transparent";
+    const fg=v==="Select"?"#27500A":v==="Hold"?"#633806":v==="Reject"?"#A32D2D":"transparent";
+    chip.style.cssText=`background:${bg};color:${fg};display:${v?"inline":"none"}`;
+    chip.textContent=v||"";
+  }
+};
+
+function recalcAvg(ci){
+  const rs=pstate[ci].ratings.filter(r=>r>0);
+  const avg=rs.length?(rs.reduce((a,b)=>a+b,0)/rs.length).toFixed(1):"—";
+  const el=document.getElementById(`avg-${ci}`);if(el)el.textContent=avg!=="—"?avg+"/5":"—";
+  const p=document.getElementById(`pgp-${ci}`);if(p)p.style.width=rs.length?Math.round(rs.reduce((a,b)=>a+b,0)/rs.length/5*100)+"%":"0%";
+}
+
+window.toggleCard = function(ci){
+  pstate[ci].open=!pstate[ci].open;
+  document.getElementById(`pb-${ci}`).className="panel-body"+(pstate[ci].open?" open":"");
+  document.getElementById(`chv-${ci}`).className="chev"+(pstate[ci].open?" open":"");
+};
+
+window.saveToSheets = async function(ci){
+  panelMembers.forEach((_,pi)=>{
+    const ta=document.getElementById(`cb-${ci}-${pi}`);if(ta)pstate[ci].comments[pi]=ta.value;
+  });
+  const rem=document.getElementById(`rem-${ci}`);if(rem)pstate[ci].remarks=rem.value;
+
+  const btn=document.getElementById(`sbtn-${ci}`);
+  const ok=document.getElementById(`sok-${ci}`);
+  const err=document.getElementById(`serr-${ci}`);
+  if(btn)btn.classList.add("saving");
+  ok.style.display="none"; err.style.display="none";
+  setGsStatus("syncing","⟳ Saving...");
+
+  const c=candidates[ci];
+  const rs=pstate[ci].ratings.filter(r=>r>0);
+  const avg=rs.length?(rs.reduce((a,b)=>a+b,0)/rs.length).toFixed(1):"";
+
+  const payload={
+    num:ci+1, name:c.name, role:c.role,
+    r0:pstate[ci].ratings[0]||"", c0:pstate[ci].comments[0], v0:pstate[ci].verdicts[0]||"",
+    r1:pstate[ci].ratings[1]||"", c1:pstate[ci].comments[1], v1:pstate[ci].verdicts[1]||"",
+    r2:pstate[ci].ratings[2]||"", c2:pstate[ci].comments[2], v2:pstate[ci].verdicts[2]||"",
+    avg:avg, final:pstate[ci].final||"Pending", remarks:pstate[ci].remarks,
+  };
+
+  try{
+    const res=await fetch(GS_URL,{method:"POST",body:JSON.stringify(payload)});
+    const json=await res.json();
+    if(json.status==="ok"){
+      if(btn)btn.classList.remove("saving");
+      ok.style.display="inline";
+      setTimeout(()=>ok.style.display="none",3000);
+      setGsStatus("ok","✓ Saved to Sheets");
+    } else { throw new Error(json.msg||"Unknown error"); }
+  } catch(e){
+    if(btn)btn.classList.remove("saving");
+    err.style.display="inline"; err.textContent="Failed: "+e.message;
+    setTimeout(()=>err.style.display="none",5000);
+    setGsStatus("err","✗ Save failed");
+  }
+};
+
+function setGsStatus(type,msg){
+  const el=document.getElementById("gsStatus");
+  el.className=type==="ok"?"gs-ok":type==="err"?"gs-err":"gs-syncing";
+  el.textContent=msg;
+}
+
+async function loadFromSheets(){
+  try{
+    const res=await fetch(GS_URL+"?action=get");
+    const json=await res.json();
+    if(json.rows&&json.rows.length){
+      json.rows.forEach(row=>{
+        const ci=candidates.findIndex(c=>c.name===row[1]);
+        if(ci<0)return;
+        if(row[3])  pstate[ci].ratings[0]=Number(row[3])||0;
+        if(row[6])  pstate[ci].ratings[1]=Number(row[6])||0;
+        if(row[9])  pstate[ci].ratings[2]=Number(row[9])||0;
+        if(row[4])  pstate[ci].comments[0]=row[4];
+        if(row[7])  pstate[ci].comments[1]=row[7];
+        if(row[10]) pstate[ci].comments[2]=row[10];
+        if(row[5])  pstate[ci].verdicts[0]=row[5];
+        if(row[8])  pstate[ci].verdicts[1]=row[8];
+        if(row[11]) pstate[ci].verdicts[2]=row[11];
+        if(row[13]) pstate[ci].final=row[13];
+        if(row[14]) pstate[ci].remarks=row[14];
+      });
+      buildPanel(); updateSummary();
+      setGsStatus("ok","✓ Loaded from Sheets");
+    }
+  } catch(e){ setGsStatus("ok","✓ Connected"); }
+}
+
+function buildPanel(){
+  document.getElementById("panelList").innerHTML=candidates.map((c,ci)=>{
+    const s=pstate[ci]; const b=bandStyle[c.band];
+    const rs=s.ratings.filter(r=>r>0);
+    const avg=rs.length?(rs.reduce((a,b)=>a+b,0)/rs.length).toFixed(1):"—";
+    const pw=rs.length?Math.round(rs.reduce((a,b)=>a+b,0)/rs.length/5*100):0;
+    const fv=s.final;
+    const fpBg=fv==="Select"?"#EAF3DE":fv==="Hold"?"#FAEEDA":fv==="Reject"?"#FCEBEB":"transparent";
+    const fpFg=fv==="Select"?"#27500A":fv==="Hold"?"#633806":fv==="Reject"?"#A32D2D":"transparent";
+    return `
+    <div class="cand-card">
+      <div class="ch" onclick="toggleCard(${ci})">
+        <div class="av" style="background:${c.color};color:${c.tc}">${c.init}</div>
+        <div style="flex:1;min-width:0">
+          <div class="cn">${c.name}</div>
+          <div class="cr">${c.role}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
+          <span style="font-size:10px;color:#B0C4D0">${rs.length}/3 rated</span>
+          <div class="pb-bar"><div class="pb-fill" id="pgp-${ci}" style="width:${pw}%"></div></div>
+          <span class="sc2" style="background:${b.bg};color:${b.fg}">${c.score}/50</span>
+          <span class="fp-chip" id="fpc-${ci}" style="background:${fpBg};color:${fpFg};display:${fv?"inline":"none"}">${fv||""}</span>
+          <svg id="chv-${ci}" class="chev${s.open?" open":""}" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="6,4 10,8 6,12"/>
+          </svg>
+        </div>
+      </div>
+
+      <div class="panel-body${s.open?" open":""}" id="pb-${ci}">
+        <div class="panel-grid">
+          ${panelMembers.map((pm,pi)=>`
+          <div class="ib">
+            <div class="ih">
+              <div class="ia" style="background:${pm.c};color:${pm.t}">${pm.init}</div>
+              <div><div class="in2">${pm.name}</div><div class="it">${pm.title}</div></div>
+            </div>
+            <div style="font-size:10px;color:#7A9AB0;margin-bottom:5px">Rating</div>
+            <div class="star-row" id="st-${ci}-${pi}">${starsHTML(ci,pi,s.ratings[pi])}</div>
+            <textarea class="cb" id="cb-${ci}-${pi}" placeholder="Write observations, strengths, concerns here...">${s.comments[pi]}</textarea>
+            <div style="font-size:10px;color:#7A9AB0;margin:8px 0 5px">Verdict</div>
+            <div class="vr">
+              <div class="vb${s.verdicts[pi]==="Select"?" ss":""}" id="vb-${ci}-${pi}-0" onclick="setVerdict(${ci},${pi},'Select')">Select</div>
+              <div class="vb${s.verdicts[pi]==="Hold"?" sh":""}"   id="vb-${ci}-${pi}-1" onclick="setVerdict(${ci},${pi},'Hold')">Hold</div>
+              <div class="vb${s.verdicts[pi]==="Reject"?" sr":""}" id="vb-${ci}-${pi}-2" onclick="setVerdict(${ci},${pi},'Reject')">Reject</div>
+            </div>
+          </div>`).join("")}
+        </div>
+
+        <div class="pf">
+          <span class="fl">Panel avg:</span>
+          <span class="fv" id="avg-${ci}">${avg!=="—"?avg+"/5":"—"}</span>
+          <span class="fl" style="margin-left:8px">Final decision:</span>
+          <select class="fsel" onchange="setFinal(${ci},this.value)">
+            <option value="">— Pending —</option>
+            <option value="Select"${s.final==="Select"?" selected":""}>Select</option>
+            <option value="Hold"${s.final==="Hold"?" selected":""}>Hold</option>
+            <option value="Reject"${s.final==="Reject"?" selected":""}>Reject</option>
+          </select>
+          <input class="rem-box" id="rem-${ci}" placeholder="Overall remarks..." value="${s.remarks||""}">
+          <button class="save-btn" id="sbtn-${ci}" onclick="saveToSheets(${ci})">
+            Save to Sheets <span class="spin"></span>
+          </button>
+          <span class="saved-ok" id="sok-${ci}">✓ Saved</span>
+          <span class="saved-err" id="serr-${ci}"></span>
+        </div>
+      </div>
+    </div>`;
+  }).join("");
+  updateSummary();
+}
+
+buildPanel();
+loadFromSheets();
+</script>
+</body>
+</html>
